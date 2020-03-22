@@ -1,26 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import '../config/httpHeaders.dart';
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
-class HomePage extends StatelessWidget {
+class _HomePageState extends State<HomePage> {
+  String showText = '还没有数据';
+
   @override
   Widget build(BuildContext context) {
-    getHttp();
     return Scaffold(
-      body: Center(
-        child: Text('商城首页'),
+      appBar: AppBar(
+        title: Text('请求极客时间数据'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            RaisedButton(
+              onPressed: (){ 
+                  _jike();
+              },
+              child: Text('请求数据'),
+            ),
+            Text(showText)
+          ],
+        ),
       )
     );
   }
 
-
-  void getHttp() async{
+  void _jike() {
+    print('开始请求数据');
+    getHttp().then((data){
+      setState(() {
+        showText = data['data'].toString();
+      });
+    });
+  }
+  Future getHttp() async{
     try{
       Response response;
-      response = await Dio().get('http://yapi.demo.qunar.com/mock/90770/api/v1/test');
-      return print(response.data);
-    }catch(error) {
-      return print(error);
+      Dio dio = new Dio();
+      dio.options.headers = httpHeaders;
+      response = await dio.get('https://time.geekbang.org/serv/v1/column/details');
+      print(response);
+      return response.data;
+    }catch(e){
+      return print(e);
     }
   }
-
 }
